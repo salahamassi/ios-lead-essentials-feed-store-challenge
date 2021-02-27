@@ -110,11 +110,15 @@ class RealmFeedStore: FeedStore {
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		let realm = try! getRealm()
-		try! realm.write {
-			realm.deleteAll()
+		do {
+			let realm = try getRealm()
+			try realm.write {
+				realm.deleteAll()
+			}
+			completion(nil)
+		} catch {
+			completion(error)
 		}
-		completion(nil)
 	}
 	
 	private func getRealm() throws -> Realm {
@@ -300,18 +304,19 @@ extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 	}
 }
 
-//extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
+
+	func test_delete_deliversErrorOnDeletionError() throws {
+		let noDeletePermissionURL = cachesDirectory()
+		let sut = try makeSUT(url: noDeletePermissionURL)
+
+		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
+	}
+
+	func test_delete_hasNoSideEffectsOnDeletionError() throws {
+//		let sut = try makeSUT()
 //
-//	func test_delete_deliversErrorOnDeletionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
-//	}
-//
-//	func test_delete_hasNoSideEffectsOnDeletionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
-//	}
-//
-//}
+//		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
+	}
+
+}
