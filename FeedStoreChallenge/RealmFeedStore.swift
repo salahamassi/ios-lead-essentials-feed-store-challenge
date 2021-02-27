@@ -11,10 +11,10 @@ import RealmSwift
 
 public class RealmFeedStore: FeedStore {
 	
-	private let storeURL: URL?
+	private let config: Realm.Configuration?
 	
-	public init(storeURL: URL?) {
-		self.storeURL = storeURL
+	public init(config: Realm.Configuration?) {
+		self.config = config
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
@@ -56,9 +56,7 @@ public class RealmFeedStore: FeedStore {
 	}
 	
 	private func getRealm() throws -> Realm {
-		if let storeURL = storeURL {
-			var config = Realm.Configuration.defaultConfiguration
-			config.fileURL = storeURL
+		if let config = config {
 			return try Realm(configuration: config)
 		} else {
 			return try Realm()
