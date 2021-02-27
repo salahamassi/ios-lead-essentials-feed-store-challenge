@@ -11,7 +11,7 @@ import RealmSwift
 
 public class RealmFeedStore: FeedStore {
 	
-	let storeURL: URL?
+	private let storeURL: URL?
 	
 	public init(storeURL: URL?) {
 		self.storeURL = storeURL
