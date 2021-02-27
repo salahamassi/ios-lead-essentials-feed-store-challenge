@@ -5,6 +5,21 @@
 import XCTest
 import FeedStoreChallenge
 
+class RealmFeedStore: FeedStore {
+	
+	func retrieve(completion: @escaping RetrievalCompletion) {
+		completion(.empty)
+	}
+	
+	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
+		
+	}
+	
+	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+		
+	}
+}
+
 class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	//  ***********************
@@ -20,9 +35,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	//  ***********************
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
-//		let sut = try makeSUT()
-//		
-//		assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
+		let sut = try makeSUT()
+		
+		assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_hasNoSideEffectsOnEmptyCache() throws {
@@ -94,7 +109,8 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		fatalError("Must be implemented")
+		let store = RealmFeedStore()
+		return store
 	}
 	
 }
