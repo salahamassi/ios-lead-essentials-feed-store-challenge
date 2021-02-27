@@ -27,9 +27,9 @@ class FeedStoreIntegrationTests: XCTestCase {
 	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
-//		let sut = try makeSUT()
-//
-//		expect(sut, toRetrieve: .empty)
+		let sut = try makeSUT()
+
+		expect(sut, toRetrieve: .empty)
 	}
 	
 	func test_retrieve_deliversFeedInsertedOnAnotherInstance() throws {
@@ -72,15 +72,28 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		fatalError("Must be implemented")
+		let store = RealmFeedStore(storeURL: testSpecificStoreURL())
+		trackForMemoryLeaks(store)
+		return store
 	}
 	
 	private func setupEmptyStoreState() throws {
-		
+		deleteStoreArtifacts()
 	}
 	
 	private func undoStoreSideEffects() throws {
-		
+		deleteStoreArtifacts()
 	}
 	
+	private func deleteStoreArtifacts() {
+		try? FileManager.default.removeItem(at: testSpecificStoreURL())
+	}
+	
+	private func testSpecificStoreURL() -> URL {
+		cachesDirectory().appendingPathComponent("\(type(of: self)).realm")
+	}
+	
+	private func cachesDirectory() -> URL {
+		FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+	}
 }
