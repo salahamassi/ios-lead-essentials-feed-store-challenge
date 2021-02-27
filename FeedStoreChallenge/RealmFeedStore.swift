@@ -34,6 +34,7 @@ public class RealmFeedStore: FeedStore {
 		do {
 			let realm = try getRealm()
 			try realm.write {
+				realm.deleteAll()
 				realm.add(Cache(realmFeed: feed.toRealmList(), timestamp: timestamp))
 			}
 			completion(nil)
