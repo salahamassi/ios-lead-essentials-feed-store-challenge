@@ -98,11 +98,15 @@ class RealmFeedStore: FeedStore {
 	}
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		let realm = try! getRealm()
-		try! realm.write {
-			realm.add(Cache(realmFeed: feed.toRealmList(), timestamp: timestamp))
+		do {
+			let realm = try getRealm()
+			try realm.write {
+				realm.add(Cache(realmFeed: feed.toRealmList(), timestamp: timestamp))
+			}
+			completion(nil)
+		} catch {
+			completion(error)
 		}
-		completion(nil)
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
@@ -279,21 +283,22 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 	}
 }
 
-//extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
+
+	func test_insert_deliversErrorOnInsertionError() throws {
+		let invalidStoreURL = URL(string: "invalid://store-url")!
+		let sut = try makeSUT(url: invalidStoreURL)
+
+		assertThatInsertDeliversErrorOnInsertionError(on: sut)
+	}
+
+	func test_insert_hasNoSideEffectsOnInsertionError() throws {
+//		let sut = try makeSUT()
 //
-//	func test_insert_deliversErrorOnInsertionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatInsertDeliversErrorOnInsertionError(on: sut)
-//	}
-//
-//	func test_insert_hasNoSideEffectsOnInsertionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
-//	}
-//
-//}
+//		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
+	}
+
+}
 
 //extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 //
