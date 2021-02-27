@@ -83,11 +83,21 @@ class RealmFeedStore: FeedStore {
 	}
 	
 	func retrieve(completion: @escaping RetrievalCompletion) {
-		completion(.empty)
+		let realm = try! getRealm()
+		
+		if let cache = realm.objects(Cache.self).last {
+			completion(.found(feed: cache.feed, timestamp: cache.timestamp))
+		} else {
+			completion(.empty)
+		}
 	}
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		
+		let realm = try! getRealm()
+		try! realm.write {
+			realm.add(Cache(realmFeed: feed.toRealmList(), timestamp: timestamp))
+		}
+		completion(nil)
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
@@ -144,9 +154,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_retrieve_deliversFoundValuesOnNonEmptyCache() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
+		let sut = try makeSUT()
+
+		assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_hasNoSideEffectsOnNonEmptyCache() throws {
