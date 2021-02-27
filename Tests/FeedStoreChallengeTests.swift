@@ -5,7 +5,82 @@
 import XCTest
 import FeedStoreChallenge
 
+import RealmSwift
+
+extension Array where Element == LocalFeedImage {
+
+	func toRealmList() -> List<RealmFeedImage> {
+		let list = List<RealmFeedImage> ()
+		forEach { list.append(.init($0)) }
+		return list
+	}
+}
+
+extension List where Element == RealmFeedImage {
+
+	func toArray() -> [LocalFeedImage] {
+		var array = [LocalFeedImage]()
+		for item in self {
+			guard let local = item.local else { continue }
+			array.append(local)
+		}
+		return array
+	}
+}
+
+@objcMembers
+class Cache: Object {
+	dynamic var realmFeed = List<RealmFeedImage>()
+	dynamic var timestamp = Date()
+	
+	var feed: [LocalFeedImage] {
+		realmFeed.toArray()
+	}
+	
+	convenience init(realmFeed: List<RealmFeedImage>, timestamp: Date) {
+		self.init()
+		self.realmFeed = realmFeed
+		self.timestamp = timestamp
+	}
+}
+
+@objcMembers
+class RealmFeedImage: Object {
+	dynamic var uuidString: String = ""
+	dynamic var mDescription: String?
+	dynamic var location: String?
+	dynamic var urlString: String = ""
+	
+	var id: UUID? {
+		UUID(uuidString: uuidString)
+	}
+	
+	var url: URL? {
+		URL(string: urlString)
+	}
+	
+	var local: LocalFeedImage? {
+		guard let id = id, let url = url else { return nil }
+		return LocalFeedImage(id: id, description: mDescription, location: location, url: url)
+	}
+	
+	convenience init(_ image: LocalFeedImage) {
+		self.init()
+		uuidString = image.id.uuidString
+		mDescription = image.description
+		location = image.location
+		urlString = image.url.absoluteString
+	}
+}
+
+
 class RealmFeedStore: FeedStore {
+	
+	let storeURL: URL?
+	
+	init(storeURL: URL?) {
+		self.storeURL = storeURL
+	}
 	
 	func retrieve(completion: @escaping RetrievalCompletion) {
 		completion(.empty)
@@ -17,6 +92,16 @@ class RealmFeedStore: FeedStore {
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		
+	}
+	
+	private func getRealm() throws -> Realm {
+		if let storeURL = storeURL {
+			var config = Realm.Configuration.defaultConfiguration
+			config.fileURL = storeURL
+			return try Realm(configuration: config)
+		} else {
+			return try Realm()
+		}
 	}
 }
 
@@ -33,6 +118,18 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	//  Repeat this process until all tests are passing.
 	//
 	//  ***********************
+	
+	override func setUp() {
+		super.setUp()
+		
+		setupEmptyStoreState()
+	}
+	
+	override func tearDown() {
+		super.tearDown()
+		
+		undoStoreSideEffects()
+	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
 		let sut = try makeSUT()
@@ -109,10 +206,29 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		let store = RealmFeedStore()
+		let store = RealmFeedStore(storeURL: testSpecificStoreURL())
 		return store
 	}
 	
+	private func deleteStoreArtifacts() {
+		try? FileManager.default.removeItem(at: testSpecificStoreURL())
+	}
+	
+	private func setupEmptyStoreState() {
+		deleteStoreArtifacts()
+	}
+	
+	private func undoStoreSideEffects() {
+		deleteStoreArtifacts()
+	}
+	
+	private func testSpecificStoreURL() -> URL {
+		cachesDirectory().appendingPathComponent("\(type(of: self)).realm")
+	}
+	
+	private func cachesDirectory() -> URL {
+		FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+	}
 }
 
 //  ***********************
