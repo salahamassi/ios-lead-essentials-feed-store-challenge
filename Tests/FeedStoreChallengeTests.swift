@@ -101,6 +101,10 @@ class RealmFeedStore: FeedStore {
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+		let realm = try! getRealm()
+		try! realm.write {
+			realm.deleteAll()
+		}
 		completion(nil)
 	}
 	
@@ -202,9 +206,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_delete_emptiesPreviouslyInsertedCache() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatDeleteEmptiesPreviouslyInsertedCache(on: sut)
+		let sut = try makeSUT()
+
+		assertThatDeleteEmptiesPreviouslyInsertedCache(on: sut)
 	}
 	
 	func test_storeSideEffects_runSerially() throws {
