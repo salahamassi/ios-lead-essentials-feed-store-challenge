@@ -270,11 +270,13 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 	}
 
 	func test_retrieve_hasNoSideEffectsOnFailure() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
-	}
+		let url = testSpecificStoreURL()
+		let sut = try makeSUT(url: url)
+		
+		try "invalidData".write(to: url, atomically: true, encoding: .utf8)
 
+		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
+	}
 }
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
