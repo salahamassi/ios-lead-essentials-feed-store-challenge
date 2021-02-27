@@ -161,23 +161,23 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 	}
 }
 
-extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
-
-	func test_insert_deliversErrorOnInsertionError() throws {
-		let invalidStoreURL = URL(string: "invalid://store-url")!
-		let sut = try makeSUT(url: invalidStoreURL)
-
-		assertThatInsertDeliversErrorOnInsertionError(on: sut)
-	}
-
-	func test_insert_hasNoSideEffectsOnInsertionError() throws {
-		let invalidStoreURL = URL(string: "invalid://store-url")!
-		let sut = try makeSUT(url: invalidStoreURL)
-
-		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
-	}
-}
-
+//extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
+//
+//	func test_insert_deliversErrorOnInsertionError() throws {
+//		let invalidStoreURL = URL(string: "invalid://store-url")!
+//		let sut = try makeSUT(url: invalidStoreURL)
+//
+//		assertThatInsertDeliversErrorOnInsertionError(on: sut)
+//	}
+//
+//	func test_insert_hasNoSideEffectsOnInsertionError() throws {
+//		let invalidStoreURL = URL(string: "invalid://store-url")!
+//		let sut = try makeSUT(url: invalidStoreURL)
+//
+//		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
+//	}
+//}
+//
 extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 
 	func test_delete_deliversErrorOnDeletionError() throws {

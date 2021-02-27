@@ -25,8 +25,6 @@ public class RealmFeedStore: FeedStore {
 			} else {
 				completion(.empty)
 			}
-		} catch Realm.Error.fileNotFound, Realm.Error.filePermissionDenied {
-			completion(.empty)
 		} catch {
 			completion(.failure(error))
 		}
