@@ -98,7 +98,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		var config = Realm.Configuration.defaultConfiguration
 		config.inMemoryIdentifier = "\(type(of: self))"
 		let store = RealmFeedStore(config: config)
-		trackForMemoryLeaks(store)
+		trackForMemoryLeaks(store, file: file, line: line)
 		return store
 	}
 }

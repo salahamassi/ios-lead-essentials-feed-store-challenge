@@ -76,7 +76,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 		var config = Realm.Configuration.defaultConfiguration
 		config.fileURL = testSpecificStoreURL()
 		let store = RealmFeedStore(config: config)
-		trackForMemoryLeaks(store)
+		trackForMemoryLeaks(store, file: file, line: line)
 		return store
 	}
 	
