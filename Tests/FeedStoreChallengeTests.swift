@@ -83,12 +83,17 @@ class RealmFeedStore: FeedStore {
 	}
 	
 	func retrieve(completion: @escaping RetrievalCompletion) {
-		let realm = try! getRealm()
-		
-		if let cache = realm.objects(Cache.self).last {
-			completion(.found(feed: cache.feed, timestamp: cache.timestamp))
-		} else {
+		do {
+			let realm = try getRealm()
+			if let cache = realm.objects(Cache.self).last {
+				completion(.found(feed: cache.feed, timestamp: cache.timestamp))
+			} else {
+				completion(.empty)
+			}
+		}catch Realm.Error.fileNotFound, Realm.Error.filePermissionDenied {
 			completion(.empty)
+		} catch {
+			completion(.failure(error))
 		}
 	}
 	
@@ -219,8 +224,8 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	// - MARK: Helpers
 	
-	private func makeSUT() throws -> FeedStore {
-		let store = RealmFeedStore(storeURL: testSpecificStoreURL())
+	private func makeSUT(url: URL? = nil) throws -> FeedStore {
+		let store = RealmFeedStore(storeURL: url ?? testSpecificStoreURL())
 		return store
 	}
 	
@@ -253,21 +258,24 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 //
 //  ***********************
 
-//extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+
+	func test_retrieve_deliversFailureOnRetrievalError() throws {
+		let url = testSpecificStoreURL()
+		let sut = try makeSUT(url: url)
+		
+		try "invalidData".write(to: url, atomically: true, encoding: .utf8)
+
+		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
+	}
+
+	func test_retrieve_hasNoSideEffectsOnFailure() throws {
+//		let sut = try makeSUT()
 //
-//	func test_retrieve_deliversFailureOnRetrievalError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
-//	}
-//
-//	func test_retrieve_hasNoSideEffectsOnFailure() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
-//	}
-//
-//}
+//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+	}
+
+}
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 //
