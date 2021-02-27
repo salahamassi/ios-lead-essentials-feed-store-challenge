@@ -105,7 +105,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	// - MARK: Helpers
 	
-	private func makeSUT(url: URL? = nil) throws -> FeedStore {
+	private func makeSUT(url: URL? = nil, file: StaticString = #filePath, line: UInt = #line) throws -> FeedStore {
 		let store = RealmFeedStore(storeURL: url ?? testSpecificStoreURL())
 		trackForMemoryLeaks(store)
 		return store
